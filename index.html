@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <title>websockets</title>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <h3 class="m-5 bg-info text-white rounded text-center p-5">WebSocket</h3>
+                <div class="form-group">
+                    <button class="btn btn-primary" id="btnConnect">Conectar</button>
+                    <button class="btn btn-info" id="btnDisconnect">Desconectar</button>
+                </div>
+                <div class="form-group">
+                    <label for="">Usuario</label>
+                    <input type="text" name="" id="txtName" class="form-control" placeholder="Usuario..."
+                        aria-describedby="helpId">
+                </div>
+                <div class="form-group">
+                    <label for="">Mensaje</label>
+                    <input type="text" name="" id="txtMsg" class="form-control" placeholder="Mensaje..."
+                        aria-describedby="helpId">
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary" id="btnSend">Enviar</button>
+                </div>
+
+                <label for="chat"></label>
+                <div id="chat"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null
+
+        const setText = data => {
+            const msg = `<div>${data}</div>`
+            chat.insertAdjacentHTML('beforeend', msg)
+        }
+
+        const setMessage = data => {
+            const msg = `
+            <div>
+            <span>${data.name}:</span>
+            <span>${data.message}</span>
+            </div>`
+            chat.insertAdjacentHTML('beforeend', msg)
+        }
+
+        btnConnect.addEventListener('click', e => {
+            ws = new WebSocket('wss://echo.websocket.org')
+            ws.onopen = () => setText('Conectado')
+            ws.onclose = () => setText('Desconectado')
+            ws.onerror = e => setText(e)
+            ws.onmessage = e => {
+                const msg = JSON.parse(e.data)
+                setMessage(msg)
+            }
+        })
+
+        btnDisconnect.addEventListener('click', e => {
+            ws.close()
+        })
+
+        btnSend.addEventListener('click', e => {
+            const msg = {
+                name: txtName.value,
+                message: txtMsg.value
+            }
+            // ws.send(txtMsg.value)
+            ws.send(JSON.stringify(msg))
+        })
+    </script>
+
+</body>
+
+</html>
